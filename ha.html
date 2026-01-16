@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tic-Tac-Toe with AI</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; }
+    #board { display: grid; grid-template-columns: repeat(3, 100px); gap: 5px; margin: 20px auto; }
+    .cell {
+      width: 100px; height: 100px;
+      font-size: 2em; background: #eee;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+    }
+    #status { margin-top: 20px; font-size: 1.2em; }
+  </style>
+</head>
+<body>
+  <h1>Tic-Tac-Toe</h1>
+  <label for="difficulty">Choose difficulty:</label>
+  <select id="difficulty">
+    <option value="easy">Easy</option>
+    <option value="medium">Medium</option>
+    <option value="hard">Hard</option>
+  </select>
+  <div id="board"></div>
+  <div id="status"></div>
+
+  <script>
+    const boardEl = document.getElementById("board");
+    const statusEl = document.getElementById("status");
+    const difficultyEl = document.getElementById("difficulty");
+    let board = Array(9).fill("");
+    let gameOver = false;
+
+    function renderBoard() {
+      boardEl.innerHTML = "";
+      board.forEach((cell, i) => {
+        const div = document.createElement("div");
+        div.className = "cell";
+        div.textContent = cell;
+        div.onclick = () => playerMove(i);
+        boardEl.appendChild(div);
+      });
+    }
+
+    function playerMove(index) {
+      if (gameOver || board[index]) return;
+      board[index] = "X";
+      renderBoard();
+      if (checkWin("X")) return endGame("You win!");
+      if (board.every(c => c)) return endGame("It's a draw!");
+      setTimeout(aiMove, 300);
+    }
+
+    function aiMove() {
+      const level = difficultyEl.value;
+      let move;
+      if (level === "easy") move = randomMove();
+      else if (level === "medium") move = blockMove() || randomMove();
+      else move = bestMove();
+      board[move] = "O";
+      renderBoard();
+      if (checkWin("O")) return endGame("Computer wins!");
+      if (board.every(c => c)) return endGame("It's a draw!");
+    }
+
+    function endGame(msg) {
+      gameOver = true;
+      statusEl.textContent = msg;
+    }
+
+    function checkWin(player) {
+      const wins = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+      ];
+      return wins.some(line => line.every(i => board[i] === player));
+    }
+
+    function randomMove() {
+      const empty = board.map((c, i) => c ? null : i).filter(i => i !== null);
+      return empty[Math.floor(Math.random() * empty.length)];
+    }
+
+    function blockMove() {
+      for (let i = 0; i < 9; i++) {
+        if (!board[i]) {
+          board[i] = "X";
+          if (checkWin("X")) {
+            board[i] = "";
+            return i;
+          }
+          board[i] = "";
+        }
+      }
+      return null;
+    }
+
+    function bestMove() {
+      let bestScore = -Infinity, move;
+      for (let i = 0; i < 9; i++) {
+        if (!board[i]) {
+          board[i] = "O";
+          let score = minimax(board, 0, false);
+          board[i] = "";
+          if (score > bestScore) {
+            bestScore = score;
+            move = i;
+          }
+        }
+      }
+      return move;
+    }
+
+    function minimax(b, depth, isMax) {
+      if (checkWin("O")) return 1;
+      if (checkWin("X")) return -1;
+      if (b.every(c => c)) return 0;
+
+      if (isMax) {
+        let best = -Infinity;
+        for (let i = 0; i < 9; i++) {
+          if (!b[i]) {
+            b[i] = "O";
+            best = Math.max(best, minimax(b, depth + 1, false));
+            b[i] = "";
+          }
+        }
+        return best;
+      } else {
+        let best = Infinity;
+        for (let i = 0; i < 9; i++) {
+          if (!b[i]) {
+            b[i] = "X";
+            best = Math.min(best, minimax(b, depth + 1, true));
+            b[i] = "";
+          }
+        }
+        return best;
+      }
+    }
+
+    renderBoard();
+  </script>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Multi-Level Platformer</title>
+  <style>
+    body {
+      margin: 0;
+      background: #111;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+    canvas {
+      background: #333;
+      border: 3px solid #fff;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" width="600" height="400"></canvas>
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // Player object
+    const player = {
+      x: 50, y: 300, width: 30, height: 30,
+      color: "orange", dx: 0, dy: 0,
+      speed: 3, jumpPower: -10, gravity: 0.5,
+      onGround: false, health: 3
+    };
+
+    let score = 0;
+    let level = 0;
+    let keys = {};
+    let gameWon = false;
+
+    // Levels
+    const levels = [
+      {
+        platforms: [
+          {x: 0, y: 350, width: 600, height: 50},
+          {x: 150, y: 250, width: 100, height: 20},
+          {x: 350, y: 200, width: 120, height: 20}
+        ],
+        coins: [
+          {x: 170, y: 220, collected: false},
+          {x: 370, y: 170, collected: false}
+        ],
+        enemies: [
+          {x: 250, y: 320, width: 30, height: 30, dx: 2}
+        ]
+      },
+      {
+        platforms: [
+          {x: 0, y: 350, width: 600, height: 50},
+          {x: 200, y: 280, width: 120, height: 20},
+          {x: 400, y: 220, width: 100, height: 20}
+        ],
+        coins: [
+          {x: 220, y: 250, collected: false},
+          {x: 420, y: 190, collected: false},
+          {x: 500, y: 320, collected: false}
+        ],
+        enemies: [
+          {x: 300, y: 320, width: 30, height: 30, dx: 3}
+        ]
+      }
+    ];
+
+    // Input handling
+    document.addEventListener("keydown", e => keys[e.key] = true);
+    document.addEventListener("keyup", e => keys[e.key] = false);
+
+    // Draw player
+    function drawPlayer() {
+      ctx.fillStyle = player.color;
+      ctx.fillRect(player.x, player.y, player.width, player.height);
+    }
+
+    // Draw platforms
+    function drawPlatforms() {
+      ctx.fillStyle = "gray";
+      levels[level].platforms.forEach(p => {
+        ctx.fillRect(p.x, p.y, p.width, p.height);
+      });
+    }
+
+    // Draw coins
+    function drawCoins() {
+      ctx.fillStyle = "yellow";
+      levels[level].coins.forEach(c => {
+        if (!c.collected) {
+          ctx.beginPath();
+          ctx.arc(c.x, c.y, 8, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+    }
+
+    // Draw enemies
+    function drawEnemies() {
+      ctx.fillStyle = "red";
+      levels[level].enemies.forEach(e => {
+        ctx.fillRect(e.x, e.y, e.width, e.height);
+      });
+    }
+
+    // Draw HUD
+    function drawHUD() {
+      ctx.fillStyle = "white";
+      ctx.font = "16px Arial";
+      ctx.fillText(`Score: ${score}`, 10, 20);
+      ctx.fillText(`Health: ${player.health}`, 500, 20);
+      ctx.fillText(`Level: ${level + 1}`, 270, 20);
+    }
+
+    // Update player physics
+    function updatePlayer() {
+      // Horizontal movement
+      if (keys["ArrowRight"]) player.dx = player.speed;
+      else if (keys["ArrowLeft"]) player.dx = -player.speed;
+      else player.dx = 0;
+
+      // Jump
+      if (keys["ArrowUp"] && player.onGround) {
+        player.dy = player.jumpPower;
+        player.onGround = false;
+      }
+
+      // Gravity
+      player.dy += player.gravity;
+
+      // Apply movement
+      player.x += player.dx;
+      player.y += player.dy;
+
+      // Collision with platforms
+      player.onGround = false;
+      levels[level].platforms.forEach(p => {
+        if (player.x < p.x + p.width &&
+            player.x + player.width > p.x &&
+            player.y + player.height > p.y &&
+            player.y + player.height < p.y + p.height + player.dy) {
+          player.y = p.y - player.height;
+          player.dy = 0;
+          player.onGround = true;
+        }
+      });
+
+      // Collect coins
+      levels[level].coins.forEach(c => {
+        if (!c.collected &&
+            player.x < c.x + 10 &&
+            player.x + player.width > c.x - 10 &&
+            player.y < c.y + 10 &&
+            player.y + player.height > c.y - 10) {
+          c.collected = true;
+          score += 10;
+        }
+      });
+
+      // Enemy collision
+      levels[level].enemies.forEach(e => {
+        e.x += e.dx;
+        if (e.x < 200 || e.x > 500) e.dx *= -1; // bounce movement
+
+        if (player.x < e.x + e.width &&
+            player.x + player.width > e.x &&
+            player.y < e.y + e.height &&
+            player.y + player.height > e.y) {
+          player.health -= 1;
+          player.x = 50; player.y = 300; // reset position
+        }
+      });
+
+      // Check if level is complete (all coins collected)
+      if (levels[level].coins.every(c => c.collected)) {
+        nextLevel();
+      }
+    }
+
+    // Advance to next level
+    function nextLevel() {
+      if (level < levels.length - 1) {
+        level++;
+        resetPlayer();
+      } else {
+        gameWon = true;
+      }
+    }
+
+    // Reset player position
+    function resetPlayer() {
+      player.x = 50;
+      player.y = 300;
+      player.dx = 0;
+      player.dy = 0;
+    }
+
+    // Game loop
+    function gameLoop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (gameWon) {
+        ctx.fillStyle = "white";
+        ctx.font = "30px Arial";
+        ctx.fillText("You Win!", 240, 200);
+        return;
+      }
+
+      drawPlatforms();
+      drawCoins();
+      drawEnemies();
+      drawPlayer();
+      drawHUD();
+      updatePlayer();
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    gameLoop();
+  </script>
+</body>
+</html>

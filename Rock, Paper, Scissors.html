@@ -1,0 +1,69 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Rock, Paper, Scissors</title>
+  <style>
+    /* General button style */
+    .btn {
+      padding: 12px 24px;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px;
+background-color:blue;
+    }
+
+
+{
+}
+
+    .btn-red { background-color: #e74c3c; }
+    .btn-green { background-color: #27ae60; }
+    .btn-blue { background-color: #2980b9; }
+
+          background-color: #4CAF50; /* Default green */
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .header .my-button { background-color: #2196F3; } /* Blue */
+    .footer .my-button { background-color: #f44336; } /* Red */
+  </style>
+</head>
+<body>
+  <h1>Rock, Paper, Scissors</h1>
+  <button class="btn btn-red" onclick="playGame('rock')">Rock</button>
+  <button class="btn btn-green" onclick="playGame('paper')">Paper</button>
+  <button class="btn btn-blue" onclick="playGame('scissors')">Scissors</button>
+  <p id="result"></p>
+
+ 
+  <script>
+    function playGame(userChoice) {
+      const choices = ["rock", "paper", "scissors"];
+      const computerChoice = choices[Math.floor(Math.random() * choices.length)];
+      let result;
+
+      if (userChoice === computerChoice) {
+        result = "It's a draw!";
+      } else if (
+        (userChoice === "rock" && computerChoice === "scissors") ||
+        (userChoice === "paper" && computerChoice === "rock") ||
+        (userChoice === "scissors" && computerChoice === "paper")
+      ) {
+        result = "You win!";
+      } else {
+        result = "You lose!";
+      }
+
+      document.getElementById("result").innerText =
+        `You chose ${userChoice}, Computer chose ${computerChoice}. ${result}`;
+    }
+  </script>
+</body>
+</html>

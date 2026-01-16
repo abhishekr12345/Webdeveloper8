@@ -1,0 +1,105 @@
+<html>
+<head>
+  <title>Rock, Paper, Scissors</title>
+</head>
+<body>
+  <h1>Rock, Paper, Scissors</h1>
+  <button onclick="playGame('rock')">Rock</button>
+  <button onclick="playGame('paper')">Paper</button>
+  <button onclick="playGame('scissors')">Scissors</button>
+  <p id="result"></p>
+
+  <script>
+}
+button
+ /* Default button style */
+    .my-button {
+      background-color: #4CAF50; /* Green */
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+ <meta charset="UTF-8">
+  <title>Three Buttons</title>
+  <style>
+    .btn {
+      padding: 12px 24px;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px;
+    }
+
+    .btn-red {
+      background-color: #e74c3c;
+    }
+
+    .btn-green {
+      background-color: #27ae60;
+    }
+
+    .btn-blue {
+      background-color: #2980b9;
+    }
+  </style>
+</head>
+<body>
+
+  <button class="btn btn-red">Red Button</button>
+  <button class="btn btn-green">Green Button</button>
+  <button class="btn btn-blue">Blue Button</button>
+
+
+    /* Different style for a specific section */
+    .header .my-button {
+      background-color: #2196F3; /* Blue */
+    }
+
+    /* Another variation */
+    .footer .my-button {
+      background-color: #f44336; /* Red */
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <button class="my-button">Header Button</button>
+  </div>
+
+  <div class="content">
+    <button class="my-button">Content Button</button>
+  </div>
+
+  <div class="footer">
+    <button class="my-button">Footer Button</button>
+  </div>
+
+    function playGame(userChoice) {
+      const choices = ["rock", "paper", "scissors"];
+      const computerChoice = choices[Math.floor(Math.random() * choices.length)];
+      let result;
+
+      if (userChoice === computerChoice) {
+        result = "It's a draw!";
+      } else if (
+        (userChoice === "rock" && computerChoice === "scissors") ||
+        (userChoice === "paper" && computerChoice === "rock") ||
+        (userChoice === "scissors" && computerChoice === "paper")
+      ) {
+        result = "You win!";
+      } else {
+        result = "You lose!";
+      }
+if(  result = "You win!";)
+
+      document.getElementById("result").innerText =
+        `You chose ${userChoice}, Computer chose ${computerChoice}. ${result}`;
+    }
+  </script>
+</body>
+</html>
